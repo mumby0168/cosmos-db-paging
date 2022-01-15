@@ -11,7 +11,15 @@ const string peopleContainerName = "people-container";
 const string partitionKey = "/partitionKey";
 
 var connectionString = builder.Configuration.GetConnectionString("Cosmos");
-builder.Services.AddSingleton(() => new CosmosClient(connectionString));
+var clientOptions = new CosmosClientOptions
+{
+    SerializerOptions = new()
+    {
+        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+    }
+};
+
+builder.Services.AddSingleton(new CosmosClient(connectionString, clientOptions));
 
 var app = builder.Build();
 
@@ -41,7 +49,7 @@ static async Task<(List<Person> items, double charge, string? continuationToken)
     int readItemsCount = 0;
     double charge = 0;
     using FeedIterator<Person> iterator = query.ToFeedIterator();
-    
+
     while (readItemsCount < pageSize && iterator.HasMoreResults)
     {
         FeedResponse<Person> next = await iterator.ReadNextAsync(cancellationToken).ConfigureAwait(false);
@@ -64,7 +72,7 @@ static async Task<(List<Person> items, double charge, string? continuationToken)
     return (results, charge, continuationToken);
 }
 
-app.MapGet("/generate", async (CosmosClient client) =>
+app.MapGet("/generate", async ([FromServices] CosmosClient client) =>
 {
     var container = await GetPeopleContainer(client);
 
@@ -87,7 +95,7 @@ app.MapGet("/generate", async (CosmosClient client) =>
 
 
 app.MapGet("/skipTake", async (
-    CosmosClient client,
+    [FromServices] CosmosClient client,
     [FromQuery] int pageNumber,
     [FromQuery] int pageSize) =>
 {
@@ -106,13 +114,14 @@ app.MapGet("/skipTake", async (
 
     return new
     {
+        requestUnits = charge,
+        count = items.Count,
         people = items,
-        requestUnits = charge
     };
 });
 
 app.MapGet("/tokenBased", async (
-    CosmosClient client,
+    [FromServices] CosmosClient client,
     [FromQuery] string? continuationToken,
     [FromQuery] int pageSize) =>
 {
@@ -129,9 +138,10 @@ app.MapGet("/tokenBased", async (
 
     return new
     {
-        people = items,
+        count = items.Count,
         requestUnits = charge,
-        continuationToken = newContinuationToken
+        continuationToken = newContinuationToken,
+        people = items,
     };
 });
 
