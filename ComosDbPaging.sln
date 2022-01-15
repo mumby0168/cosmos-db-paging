@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosRepositoryPagingSampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDbSdkPagingSample", "CosmosDbSdkPagingSample\CosmosDbSdkPagingSample.csproj", "{3FE16091-3F28-45DF-BE84-C60421C2D3B4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Postman", "Postman", "{01E8EDE2-F290-4290-9C25-D706AEFBE873}"
+	ProjectSection(SolutionItems) = preProject
+		Postman\Paging Sample - .NET SDK.postman_collection.json = Postman\Paging Sample - .NET SDK.postman_collection.json
+		Postman\Paging Sample - Cosmos Repository.postman_collection.json = Postman\Paging Sample - Cosmos Repository.postman_collection.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

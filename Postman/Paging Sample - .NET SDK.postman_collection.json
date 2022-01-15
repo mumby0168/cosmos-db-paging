@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "80f4ef36-9f5a-4bc3-b86a-818e75dfb294",
+		"name": "Paging Sample - .NET SDK",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Initial Page with CTs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7194/tokenBased?pageSize=25",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7194",
+					"path": [
+						"tokenBased"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "25"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Next Page with CT",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Continuation-Token",
+						"value": "[{\"token\":\"+RID:~47VbALuANL8ZAAAAAAAAAA==#RT:1#TRC:25#ISV:2#IEO:65567#QCF:4#FPC:ARkAAAAAAAAALAEAAAAAAAA=\",\"range\":{\"min\":\"\",\"max\":\"FF\"}}]",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"token\": \"+RID:~47VbALuANL8ZAAAAAAAAAA==#RT:1#TRC:25#ISV:2#IEO:65567#QCF:4#FPC:ARkAAAAAAAAALAEAAAAAAAA=\",\n        \"range\": {\n            \"min\": \"\",\n            \"max\": \"FF\"\n        }\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7194/tokenBased?pageSize=25",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7194",
+					"path": [
+						"tokenBased"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "25"
+						},
+						{
+							"key": "X-Continuation-Token",
+							"value": "[{\"token\":\"+RID:~47VbALuANL8ZAAAAAAAAAA==#RT:1#TRC:25#ISV:2#IEO:65567#QCF:4#FPC:ARkAAAAAAAAALAEAAAAAAAA=\",\"range\":{\"min\":\"\",\"max\":\"FF\"}}]",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Skip, Take Page 1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7194/skipTake?pageSize=25&pageNumber=1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7194",
+					"path": [
+						"skipTake"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "25"
+						},
+						{
+							"key": "pageNumber",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Skip, Take Page 10",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7088/skipTake?pageSize=25&pageNumber=10",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7088",
+					"path": [
+						"skipTake"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "25"
+						},
+						{
+							"key": "pageNumber",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
