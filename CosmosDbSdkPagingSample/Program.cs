@@ -39,10 +39,13 @@ async Task<Container> GetPeopleContainer(CosmosClient cosmosClient)
     return peopleContainer;
 }
 
-static async Task<(List<Person> items, double charge, string? continuationToken)> GetAllItemsAsync(
+static async Task<(
+    List<Person> items, 
+    double charge, 
+    string? continuationToken
+    )> GetAllItemsAsync(
     IQueryable<Person> query,
-    int pageSize,
-    CancellationToken cancellationToken = default)
+    int pageSize)
 {
     string? continuationToken = null;
     List<Person> results = new();
@@ -52,7 +55,8 @@ static async Task<(List<Person> items, double charge, string? continuationToken)
 
     while (readItemsCount < pageSize && iterator.HasMoreResults)
     {
-        FeedResponse<Person> next = await iterator.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+        FeedResponse<Person> next = 
+            await iterator.ReadNextAsync();
 
         foreach (Person result in next)
         {
@@ -101,7 +105,10 @@ app.MapGet("/skipTake", async (
 {
     var container = await GetPeopleContainer(client);
 
-    QueryRequestOptions queryOptions = new() {MaxItemCount = pageSize};
+    QueryRequestOptions queryOptions = new()
+    {
+        MaxItemCount = pageSize
+    };
 
     IQueryable<Person> query = container
         .GetItemLinqQueryable<Person>(requestOptions: queryOptions)
@@ -121,26 +128,37 @@ app.MapGet("/skipTake", async (
 });
 
 app.MapGet("/tokenBased", async (
+    HttpContext context,
     [FromServices] CosmosClient client,
-    [FromQuery] string? continuationToken,
     [FromQuery] int pageSize) =>
 {
+    string? continuationToken = 
+        context.Request.Headers["X-Continuation-Token"];
+        
     var container = await GetPeopleContainer(client);
 
-    QueryRequestOptions queryOptions = new() {MaxItemCount = pageSize};
+    QueryRequestOptions queryOptions = new()
+    {
+        MaxItemCount = pageSize
+    };
 
     IQueryable<Person> query = container
-        .GetItemLinqQueryable<Person>(requestOptions: queryOptions, continuationToken: continuationToken)
+        .GetItemLinqQueryable<Person>(
+            requestOptions: queryOptions, 
+            continuationToken: continuationToken)
         .Where(x => x.PartitionKey == nameof(Person));
 
     var (items, charge, newContinuationToken) =
         await GetAllItemsAsync(query, pageSize);
 
+
+    context.Response.Headers["X-Continuation-Token"] =
+        newContinuationToken;
+    
     return new
     {
         count = items.Count,
         requestUnits = charge,
-        continuationToken = newContinuationToken,
         people = items,
     };
 });
