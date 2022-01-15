@@ -1,5 +1,8 @@
 using CosmosRepositoryPagingSample;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.CosmosRepository;
+using Microsoft.Azure.CosmosRepository.Paging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +50,50 @@ app.MapGet("/generate", async (IRepository<Person> repository) =>
     }
 
     await Task.WhenAll(tasks);
+});
+
+app.MapGet("/skipTake", async (
+    [FromServices] IRepository<Person> repository,
+    [FromQuery] int pageNumber,
+    [FromQuery] int pageSize) =>
+{
+
+    IPageQueryResult<Person> result = await repository.PageAsync(
+            x => x.PartitionKey == nameof(Person),
+            pageNumber,
+            pageSize);
+
+    return new
+    {
+        requestUnits = result.Charge,
+        count = result.Total,
+        pages = result.TotalPages,
+        people = result.Items
+    };
+});
+
+app.MapGet("/tokenBased", async (
+    HttpContext context,
+    [FromServices] IRepository<Person> repository,
+    [FromQuery] int pageSize) =>
+{
+    string? continuationToken = 
+        context.Request.Headers["X-Continuation-Token"];
+
+    IPage<Person> result = await repository.PageAsync(
+        x => x.PartitionKey == nameof(Person),
+        pageSize,
+        continuationToken);
+    
+    context.Response.Headers["X-Continuation-Token"] =
+        result.Continuation;
+
+    return new
+    {
+        requestUnits = result.Charge,
+        count = result.Total,
+        people = result.Items
+    };
 });
 
 app.Run();
