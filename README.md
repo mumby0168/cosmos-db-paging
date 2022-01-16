@@ -1,6 +1,6 @@
 # Getting started
 
-See my blog post that talks through this example in more detail [here]().
+See my blog post that talks through this example in more detail [here](https://billy-mumby-blog.hashnode.dev/paging-in-azure-cosmos-db).
 
 You will need the .NET 6 SDK installed and either VS Code, VS 2022 or the latest version of rider to edit this code.
 
